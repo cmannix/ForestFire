@@ -1,101 +1,81 @@
 import unittest
-from src.ForestService import ForestService
-from src.ForestGrid import ForestGrid
+from src.ForestGrid import *
 from src.CellState import CellState
 
 class ForestServiceUnitTests(unittest.TestCase):
-    def return_true(self): return True
+    def test_process_cells_changes_empty_cells_to_trees_if_under_threshold(self):
+        original_grid = [[CellState.EMPTY, CellState.EMPTY, CellState.TREE],
+                         [CellState.EMPTY, CellState.TREE, CellState.TREE],
+                         [CellState.TREE, CellState.TREE, CellState.TREE]]
+        expected_grid = [[CellState.TREE, CellState.TREE, CellState.TREE],
+                         [CellState.TREE, CellState.TREE, CellState.TREE],
+                         [CellState.TREE, CellState.TREE, CellState.TREE]]
 
-    def return_false(self): return False
+        grid = ForestGrid(3, 1, 0)
 
-    def test_get_updated_state_returns_tree_state_if_empty_and_should_update(self):
-        service = ForestService(0, 0)
-        service.should_grow_tree = self.return_true
-        has_called_should_start_fire = False
-        def mock_should_start_fire(): has_called_should_start_fire = True
-        service.should_start_fire = mock_should_start_fire
+        grid._grid = original_grid
 
-        grid = ForestGrid(1, service)
+        grid.process_cells()
 
-        new_state = grid.get_updated_state(CellState.EMPTY)
+        new_grid = grid._grid
 
-        self.assertFalse(has_called_should_start_fire)
-        self.assertEquals(new_state, CellState.TREE)
+        self.assertEquals(new_grid, expected_grid)
 
-    def test_get_updated_state_returns_empty_state_if_empty_and_should_not_grow(self):
-        service = ForestService(0, 0)
-        service.should_grow_tree = self.return_false
+    def test_process_cells_ignores_empty_cells_if_over_growth_threshold(self):
+        original_grid = [[CellState.EMPTY, CellState.EMPTY, CellState.TREE],
+                         [CellState.EMPTY, CellState.TREE, CellState.TREE],
+                         [CellState.TREE, CellState.TREE, CellState.TREE]]
+        expected_grid = [[CellState.EMPTY, CellState.EMPTY, CellState.TREE],
+                         [CellState.EMPTY, CellState.TREE, CellState.TREE],
+                         [CellState.TREE, CellState.TREE, CellState.TREE]]
 
-        has_called_should_start_fire = False
-        def mock_should_start_fire(): has_called_should_start_fire = True
-        service.should_start_fire = mock_should_start_fire
+        grid = ForestGrid(3, 0, 0)
 
-        grid = ForestGrid(1, service)
+        grid._grid = original_grid
 
-        new_state = grid.get_updated_state(CellState.EMPTY)
+        grid.process_cells()
 
-        self.assertFalse(has_called_should_start_fire)
-        self.assertEquals(new_state, CellState.EMPTY)
+        new_grid = grid._grid
 
-    def test_get_updated_state_returns_fire_state_if_tree_and_should_start_fire(self):
-        service = ForestService(0, 0)
-        service.should_start_fire = self.return_true
+        self.assertEquals(new_grid, expected_grid)
 
-        has_called_should_grow_tree = False
+    def test_process_cells_changes_tree_cells_to_fires_if_under_threshold(self):
+        original_grid = [[CellState.TREE, CellState.TREE, CellState.EMPTY],
+                         [CellState.TREE, CellState.EMPTY, CellState.EMPTY],
+                         [CellState.EMPTY, CellState.EMPTY, CellState.EMPTY]]
+        expected_grid = [[CellState.FIRE, CellState.FIRE, CellState.EMPTY],
+                         [CellState.FIRE, CellState.EMPTY, CellState.EMPTY],
+                         [CellState.EMPTY, CellState.EMPTY, CellState.EMPTY]]
 
-        def mock_should_grow_tree(): has_called_should_grow_tree = True
+        grid = ForestGrid(3, 0, 1)
 
-        service.should_grow_tree = mock_should_grow_tree
+        grid._grid = original_grid
 
-        grid = ForestGrid(1, service)
+        grid.process_cells()
 
-        new_state = grid.get_updated_state(CellState.TREE)
+        new_grid = grid._grid
 
-        self.assertFalse(has_called_should_grow_tree)
-        self.assertEquals(new_state, CellState.FIRE)
+        self.assertEquals(new_grid, expected_grid)
 
-    def test_get_updated_state_returns_tree_state_if_tree_and_should_not_start_fire(self):
-        service = ForestService(0, 0)
-        service.should_start_fire = self.return_false
+    def test_process_cells_ignores_empty_cells_if_over_fire_threshold(self):
+        original_grid = [[CellState.TREE, CellState.TREE, CellState.EMPTY],
+                         [CellState.TREE, CellState.EMPTY, CellState.EMPTY],
+                         [CellState.EMPTY, CellState.EMPTY, CellState.EMPTY]]
+        expected_grid = [[CellState.TREE, CellState.TREE, CellState.EMPTY],
+                         [CellState.TREE, CellState.EMPTY, CellState.EMPTY],
+                         [CellState.EMPTY, CellState.EMPTY, CellState.EMPTY]]
 
-        has_called_should_grow_tree = False
+        grid = ForestGrid(3, 0, 0)
 
-        def mock_should_grow_tree(): has_called_should_grow_tree = True
+        grid._grid = original_grid
 
-        service.should_grow_tree = mock_should_grow_tree
+        grid.process_cells()
 
-        grid = ForestGrid(1, service)
+        new_grid = grid._grid
 
-        new_state = grid.get_updated_state(CellState.TREE)
+        self.assertEquals(new_grid, expected_grid)
 
-        self.assertFalse(has_called_should_grow_tree)
-
-        self.assertEquals(new_state, CellState.TREE)
-
-    def test_get_updated_state_returns_fire_state_if_fire(self):
-        service = ForestService(0, 0)
-        service.should_start_fire = self.return_false
-
-        has_called_should_grow_tree = False
-        has_called_should_start_fire = False
-
-        def mock_should_start_fire(): has_called_should_start_fire = True
-        def mock_should_grow_tree(): has_called_should_grow_tree = True
-
-        service.should_start_fire = mock_should_start_fire
-        service.should_grow_tree = mock_should_grow_tree
-
-        grid = ForestGrid(1, service)
-
-        new_state = grid.get_updated_state(CellState.FIRE)
-
-        self.assertFalse(has_called_should_start_fire)
-
-        self.assertFalse(has_called_should_grow_tree)
-
-        self.assertEquals(new_state, CellState.FIRE)
-
-    def test_spread_fire_changes_state_of_neighbour_cells(self):
+    def test_process_cells_changes_state_of_neighbour_cells(self):
         original_grid = [[CellState.TREE, CellState.TREE, CellState.TREE],
                         [CellState.TREE, CellState.FIRE, CellState.TREE],
                         [CellState.TREE, CellState.TREE, CellState.TREE]]
@@ -103,16 +83,17 @@ class ForestServiceUnitTests(unittest.TestCase):
                         [CellState.FIRE, CellState.EMPTY, CellState.FIRE],
                         [CellState.TREE, CellState.FIRE, CellState.TREE]]
 
-        service = ForestService(0, 0)
-        forest = ForestGrid(3, service)
+        grid = ForestGrid(3, 0, 0)
 
-        forest.grid = original_grid
+        grid._grid = original_grid
 
-        new_grid = forest.spread_fire()
+        grid.process_cells()
+
+        new_grid = grid._grid
 
         self.assertEquals(new_grid, expected_grid)
 
-    def test_spread_fire_updates_neighbour_cells_at_border(self):
+    def test_process_cells_updates_neighbour_cells_at_border(self):
         original_grid = [[CellState.TREE, CellState.TREE, CellState.TREE],
                         [CellState.FIRE, CellState.TREE, CellState.TREE],
                         [CellState.TREE, CellState.TREE, CellState.TREE]]
@@ -120,13 +101,13 @@ class ForestServiceUnitTests(unittest.TestCase):
                         [CellState.EMPTY, CellState.FIRE, CellState.TREE],
                         [CellState.FIRE, CellState.TREE, CellState.TREE]]
 
+        grid = ForestGrid(3, 0, 0)
 
-        service = ForestService(0, 0)
-        forest = ForestGrid(3, service)
+        grid._grid = original_grid
 
-        forest.grid = original_grid
+        grid.process_cells()
 
-        new_grid = forest.spread_fire()
+        new_grid = grid._grid
 
         self.assertEquals(new_grid, expected_grid)
 
