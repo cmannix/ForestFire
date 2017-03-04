@@ -9,9 +9,9 @@ class ForestGrid:
         self.initialise_grid()
 
     @classmethod
-    def make_forest_grid(cls, grid_size:int, growth_probability: float, fire_probability: float):
+    def from_values(cls, grid_size: int, growth_probability: float, fire_probability: float):
         service = ForestService(growth_probability, fire_probability)
-        return ForestGrid(grid_size, service)
+        return cls(grid_size, service)
 
     def initialise_grid(self):
         self.grid = [[CellState.EMPTY for x in range(self.grid_size)] for y in range(self.grid_size)]

@@ -1,6 +1,6 @@
 import unittest
 from src.ForestService import ForestService
-from src.ForestGridClass import ForestGrid
+from src.ForestGrid import ForestGrid
 from src.CellState import CellState
 
 class ForestServiceUnitTests(unittest.TestCase):
