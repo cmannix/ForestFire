@@ -31,9 +31,9 @@ class ForestGrid:
             return self.__should_do(self.__growth_probability)
 
         def should_start_fire(x: int, y: int) -> bool:
-            has_burn_nb = any(neighbour_burning(x, y))
-            random_fire = self.__should_do(self.__fire_probability)
-            return has_burn_nb or random_fire
+            has_burning_neighbours = any(neighbour_burning(x, y))
+            start_random_fire = self.__should_do(self.__fire_probability)
+            return has_burning_neighbours or start_random_fire
 
         for x in range(grid_size):
             for y in range(grid_size):
